@@ -35,7 +35,6 @@
     color: #333;
     padding-top: 10px;
     padding-bottom: 10px;
-    background: #fcfcfc;
 }
 
 .errorMessage {
@@ -127,4 +126,7 @@ button.cadd-btn {
 
 .reply {
     margin-top: 10px;
+}
+textarea.materialize-textarea {
+    min-height: 14rem;
 }
