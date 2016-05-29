@@ -1,5 +1,5 @@
 <?php
 $GLOBALS['trafic_limiter']=array (
-  '::1' => 1464287924,
+  '::1' => 1464559373,
 );
 ?>

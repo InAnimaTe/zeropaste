@@ -3,10 +3,6 @@
     margin-top: 10px;
 }
 
-.first-row {
-    background: #f8f8f8;
-}
-
 .brandbox h1 {
     font-weight: bold;
     margin-bottom: 0;
@@ -32,22 +28,10 @@
 }
 
 .notification {
-    color: #333;
     padding-top: 10px;
     padding-bottom: 10px;
 }
 
-.errorMessage {
-    color: #ee0000;
-}
-
-#pasteoptions {
-    margin-top: 54px;
-}
-
-textarea#message {
-    background: #fbfbfb;
-}
 
 #cleartext pre {
     padding: 0;
@@ -87,7 +71,6 @@ pre.precontent {
 }
 
 .commentmeta {
-    background: #f3f3f3;
     padding: 5px;
     line-height: 18px;
     font-size: 12px;
@@ -104,10 +87,6 @@ img.vizhash {
 
 .commentdate {
     font-style: italic;
-}
-
-.cinput-nickname, .cinput-comment {
-    background: #fbfbfb;
 }
 
 hr.cline {
@@ -129,4 +108,12 @@ button.cadd-btn {
 }
 textarea.materialize-textarea {
     min-height: 14rem;
+}
+
+.no-padding {
+    padding:0;
+}
+button:focus {
+    outline: none;
+    background-color: inherit;
 }

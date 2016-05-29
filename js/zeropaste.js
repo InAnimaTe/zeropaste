@@ -175,11 +175,12 @@ function setElementText2(element, text) {
 
 /** Apply syntax coloring to clear text area.
  */
-function applySyntaxColoring() {
+function applySyntaxColoring(language) {
     if ($('#cleartext').html().substring(0, 11) != '<pre><code>') {
         // highlight.js expects code to be surrounded by <pre><code>
         $('#cleartext').html('<pre><code>' + $('#xcontent').html() + '</code></pre>');
     }
+    hljs.configure({languages: [language]})
     hljs.highlightBlock(document.getElementById('cleartext'));
     $('#cleartext').css('padding', '0'); // Remove white padding around code box.
 }
@@ -208,7 +209,11 @@ function displayMessages(key, comments) {
 
     // comments[0] is the paste itself.
 
-    if (comments[0].meta.syntaxcoloring) applySyntaxColoring();
+    if (comments[0].meta.syntaxcoloring) {
+        applySyntaxColoring(comments[0].meta.language);
+    }
+
+        
 
     // Display paste expiration.
     if (comments[0].meta.expire_date) $('#remainingtime').removeClass('foryoureyesonly').html('This document will expire in <strong>' + secondsToHuman(comments[0].meta.remaining_time) + '</strong>.').show();
@@ -235,7 +240,7 @@ function displayMessages(key, comments) {
             if ($(cname).length) {
                 place = $(cname);
             }
-            var divComment = $('<div class="scomment" id="comment_' + comment.meta.commentid + '">' + '<div class="commentmeta"><span class="nickname"></span><span class="commentdate"></span></div><div class="commentdata"></div>' + '<hr class="cline"><button onclick="open_reply($(this),\'' + comment.meta.commentid + '\');return false;" class="btn btn-default btn-sm"><i class="fa fa-reply"></i> Reply</button>' + '</div>');
+            var divComment = $('<div class="scomment" id="comment_' + comment.meta.commentid + '">' + '<div class="commentmeta"><span class="nickname"></span><span class="commentdate"></span></div><div class="commentdata"></div>' + '<hr class="cline"><button onclick="open_reply($(this),\'' + comment.meta.commentid + '\');return false;" class="btn btn-default btn-sm"><i class="mdi mdi-reply"></i> Reply</button>' + '</div>');
             setElementText2(divComment.find('div.commentdata'), cleartext);
             // Convert URLs to clickable links in comment.
             urls2links(divComment.find('div.commentdata'));
@@ -254,7 +259,7 @@ function displayMessages(key, comments) {
 
             place.append(divComment);
         }
-        $('div#comments').append('<div class="scomment cadd"><button onclick="open_reply($(this),\'' + pasteID() + '\');return false;" class="btn btn-primary cadd-btn"><i class="fa fa-pencil-square-o"></i> Add Comment</button></div>');
+        $('div#comments').append('<div class="scomment cadd"><button onclick="open_reply($(this),\'' + pasteID() + '\');return false;" class="btn btn-primary cadd-btn"><i class="mdi mdi-pencil"></i> Add Comment</button></div>');
         $('div#discussion').show();
     }
 }
@@ -266,7 +271,19 @@ function displayMessages(key, comments) {
  */
 function open_reply(source, commentid) {
     $('div.reply').remove(); // Remove any other reply area.
-    source.after('<div class="reply">' + '<input type="text" id="nickname" class="form-control cinput-nickname" title="Nickname (Optional)" value="" placeholder="Nickname (Optional)" />' + '<textarea id="replymessage" class="form-control replymessage cinput-comment" rows="7" placeholder="Write your comment here.."></textarea>' + '<button id="replybutton" onclick="send_comment(\'' + commentid + '\');return false;" class="btn btn-success btn-sm">Post Comment</button>' + '<div id="replystatus">&nbsp;</div>' + '</div>');
+    var content="";
+    content+='<div class="reply">';
+    content+='<div class="row">';
+    content+='<div class="col s12 m12 l12">';
+    content+='<div class="input-field col s12"><input id="nickname" type="text" class="cinput-nickname"><label for="nickname">Nickname (Optional)</label></div>';
+    content+=' <div class="input-field col s12"><textarea id="replymessage" class="materialize-textarea replymessage cinput-comment"></textarea><label for="replymessage">Write your comment here..</label></div>';
+    content+='<button id="replybutton" onclick="send_comment(\'' + commentid + '\');return false;" class="btn btn-success btn-sm">Post Comment</button>';
+    content+='<div id="replystatus">&nbsp;</div>'
+    content+='</div>';
+    content+='</div>';
+    content+='</div>';
+
+    source.after(content);
     $('input#nickname').focus(function() {
         $(this).css('color', '#000');
         if ($(this).val() == $(this).attr('title')) {
@@ -344,11 +361,12 @@ function send_data() {
         expire: $('select#pasteExpiration').val(),
         burnafterreading: $('input#burnafterreading').is(':checked') ? 1 : 0,
         opendiscussion: $('input#opendiscussion').is(':checked') ? 1 : 0,
-        syntaxcoloring: $('input#syntaxcoloring').is(':checked') ? 1 : 0
+        syntaxcoloring: $('input#syntaxcoloring').is(':checked') ? 1 : 0,
+        language: $('select#language').val(),
     };
     $.post(scriptLocation(), data_to_send, 'json')
         .error(function() {
-            showError('Data could not be sent (serveur error or not responding).');
+            showError('Data could not be sent (server error or not responding).');
         })
         .success(function(data) {
             if (data.status == 0) {
@@ -358,7 +376,7 @@ function send_data() {
                 showStatus('');
 
                 $('div#pastelink').html('<div class="input-group"><span class="input-group-addon">Your Paste URL:</span><input type="text" class="form-control" id="pasteurl" aria-label="Paste URL" value="' + url + '" onclick="this.setSelectionRange(0, this.value.length)"><span class="input-group-addon">Hit <kbd>ctrl</kbd>+<kbd>c</kbd> to Copy</span></div>');
-                $('div#linkbutton').html('<div class="btn-group btn-group-justified" role="group"><a href="' + url + '" class="btn btn-info btn-xs"><i class="fa fa-anchor"></i> Visit Link</a><a href="' + deleteUrl + '" class="btn btn-danger btn-xs"><i class="fa fa-trash"></i> Delete Link</a></div>');
+                $('div#linkbutton').html('<div class="btn-group btn-group-justified" role="group"><a href="' + url + '" target="_blank" class="btn btn-info btn-icon"><i class="mdi mdi-open-in-new"></i></a><a href="' + deleteUrl + '" class="btn btn-danger btn-icon"><i class="mdi mdi-delete"></i></a></div>');
                 $('div#pasteresult').show();
                 $('#pasteurl').select();
                 $('#pasteurl').focus();
@@ -367,7 +385,7 @@ function send_data() {
                 urls2links($('div#cleartext'));
 
                 // FIXME: Add option to remove syntax highlighting ?
-                if ($('input#syntaxcoloring').is(':checked')) applySyntaxColoring();
+                if ($('input#syntaxcoloring').is(':checked')) applySyntaxColoring(data_to_send.language);
 
                 showStatus('');
             } else if (data.status == 1) {
@@ -415,12 +433,12 @@ function stateNewPaste() {
     $('div#pasteresult').hide();
     $('textarea#message').text('');
     $('textarea#message').show();
+    $('textarea#message').next().show();
     $('div#cleartext').hide();
     $('div#message').focus();
     $('div#discussion').hide();
     $('div#pasteoptions').show();
     $('#rightcol').removeClass('hide');
-    $('#leftcol').removeClass('col-xs-12').addClass('col-xs-8');
 }
 
 /**
@@ -444,10 +462,10 @@ function stateExistingPaste() {
     $('button#newbutton').show();
     $('div#pasteresult').hide();
     $('textarea#message').hide();
+    $('textarea#message').next().hide();
     $('div#cleartext').show();
     $('div#pasteoptions').hide();
     $('#rightcol').addClass('hide');
-    $('#leftcol').removeClass('col-xs-8').addClass('col-xs-12');
 }
 
 /** Return raw text
@@ -580,9 +598,22 @@ $(function() {
         }
     });
 
+    $('select#language').attr('disabled',true);
+    $('input#syntaxcoloring').change(function() {
+        if ($(this).is(':checked')) {
+            $('select#language').attr('disabled',false);
+            $('select').material_select();
+        } else {
+            $('select#language').attr('disabled',true);
+            $('select').material_select();
+        }
+    });
+
     // Display status returned by php code if any (eg. Paste was properly deleted.)
     if ($('div#status').text().length > 0) {
         $('#pastecontent').hide();
+        $("#pasteoptions").hide();
+        $('#newbutton').addClass("col s12 m12 l12");
         $('#newbutton').show();
         showStatus($('div#status').text(), false);
         return;
@@ -609,6 +640,10 @@ $(function() {
     // Display error message from php code.
     else if ($('div#errormessage').text().length > 1) {
         showError($('div#errormessage').text());
+        $('#pastecontent').hide();
+        $("#pasteoptions").hide();
+        $('#newbutton').addClass("col s12 m12 l12");
+        $('#newbutton').show();
     }
     // Create a new paste.
     else {
