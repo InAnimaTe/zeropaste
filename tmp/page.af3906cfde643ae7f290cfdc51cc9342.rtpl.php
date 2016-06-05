@@ -9,12 +9,14 @@
   <link type="text/css" rel="stylesheet" href="tpl/../css/style.css" />
 
   <script src="tpl/../js/jquery.js"></script>
+  <script src="tpl/../js/jquery.addrule.js"></script>
   <script src="tpl/../js/materialize.min.js"></script>
   <script src="tpl/../js/sjcl.js"></script>
   <script src="tpl/../js/base64.js"></script>
   <script src="tpl/../js/rawdeflate.js"></script>
   <script src="tpl/../js/rawinflate.js"></script>
   <script src="tpl/../js/zeropaste.js"></script>
+  <script src="tpl/../js/function.js"></script>
 
   <link type="text/css" rel="stylesheet" href="tpl/../js/highlight.styles/monokai.css">
   <script src="tpl/../js/highlight.pack.js"></script>
@@ -88,7 +90,7 @@
               </div>
               <div class="input-field col s12 m6 l2 ">
                 <input type="checkbox" class="filled-in" id="syntaxcoloring" name="syntaxcoloring"/>
-                <label for="syntaxcoloring" class="<?php echo $PRIMARYCOLOR;?>">Syntax coloring</label>
+                <label for="syntaxcoloring">Syntax coloring</label>
               </div>
               <div class="input-field col s12 m12 l2">
                 <select id="language" name="language">
@@ -153,6 +155,66 @@
       $('#language').append("<option value='"+lang[i]+"'>"+lang[i]+"</option>")
     }
     $('select').material_select();
+
+    var primaryColorCB= function (hex) {
+      $(".input-field label").addRule({
+        color: hex
+      });
+
+      $(".input-field input[type=text]:focus + label").addRule({
+       color: hex
+      });
+
+      $("input:not([type]):focus:not([readonly]), input[type=text]:focus:not([readonly]), input[type=password]:focus:not([readonly]), input[type=email]:focus:not([readonly]), input[type=url]:focus:not([readonly]), input[type=time]:focus:not([readonly]), input[type=date]:focus:not([readonly]), input[type=datetime]:focus:not([readonly]), input[type=datetime-local]:focus:not([readonly]), input[type=tel]:focus:not([readonly]), input[type=number]:focus:not([readonly]), input[type=search]:focus:not([readonly]), textarea.materialize-textarea:focus:not([readonly])").addRule({
+       "border-bottom":"1px solid "+hex,
+       "box-shadow":"0 1px 0 0 "+hex
+      });
+
+      $("input:not([type]):focus:not([readonly])+label, input[type=text]:focus:not([readonly])+label, input[type=password]:focus:not([readonly])+label, input[type=email]:focus:not([readonly])+label, input[type=url]:focus:not([readonly])+label, input[type=time]:focus:not([readonly])+label, input[type=date]:focus:not([readonly])+label, input[type=datetime]:focus:not([readonly])+label, input[type=datetime-local]:focus:not([readonly])+label, input[type=tel]:focus:not([readonly])+label, input[type=number]:focus:not([readonly])+label, input[type=search]:focus:not([readonly])+label, textarea.materialize-textarea:focus:not([readonly])+label").addRule({
+        color: hex
+      });
+
+      $(".dropdown-content li>a, .dropdown-content li>span").addRule({
+        color: hex
+      });
+
+      $('[type="checkbox"].filled-in:checked+label:after').addRule({
+        border:"2px solid "+hex,
+        "background-color":hex
+      });
+
+      $(".select-dropdown").addRule({
+        color: hex,
+        "border-bottom":"1px solid "+hex+" !important"
+      });
+
+      $(".caret").addRule({
+        color: hex+" !important"
+      });
+
+      $(".btn, .btn-large").addRule({
+        "background-color": hex+" !important",
+        color:"#fff"
+      });
+
+      $(".btn.a, .btn-large.a").addRule({
+        color:"#fff"
+      });
+
+      $(".btn-group a").addRule({
+        color:"#fff"
+      });
+    };
+    
+
+    var accentColorCB= function (hex) {
+      $("body a").addRule({
+        color: hex
+      });
+
+      convertMaterialColorToCSS("<?php echo $PRIMARYCOLOR;?>",primaryColorCB);
+    }
+    convertMaterialColorToCSS("<?php echo $ACCENTCOLOR;?>",accentColorCB);
   });
 </script>
 </html>

@@ -239,7 +239,13 @@ if (!empty($_POST['data'])) // Create new paste/comment
             // (We assume that if the user did not enter a nickname, he/she wants
             // to be anonymous and we will not generate the vizhash.)
             $vz = new vizhash16x16();
-            $pngdata = $vz->generate($_SERVER['REMOTE_ADDR']);
+            $pngdata="";
+            if (isset($nick) && empty($nick)==false) {
+                $pngdata = $vz->generate($_SERVER['REMOTE_ADDR'].$nick);
+            } else {
+                 $pngdata = $vz->generate($_SERVER['REMOTE_ADDR']);
+            }
+           
             if ($pngdata!='') $meta['vizhash'] = 'data:image/png;base64,'.base64_encode($pngdata);
             // Once the avatar is generated, we do not keep the IP address, nor its hash.
         }
