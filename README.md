@@ -6,6 +6,7 @@ Forked from https://github.com/heiswayi/zeropaste
 - Configure your colors with the help of system variables!
  ... 
 
+[![](https://imagelayers.io/badge/jimtim/zeropaste:latest.svg)](https://imagelayers.io/?images=jimtim/zeropaste:latest 'Get your own badge on imagelayers.io')
 #Docker command
 Start container with "docker-compose up" or with docker command:
 ```bash
