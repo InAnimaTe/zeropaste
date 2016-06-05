@@ -1,6 +1,8 @@
 #Dockerized variant
 Start container with "docker-compose up" or with docker command:
+```bash
 docker run -e "PRIMARYCOLOR=green" -e "ACCENTCOLOR=red darken-1" -e "TEXTCOLOR=white" -e "BACKGROUNDCOLOR=white" -e "ALWAYSSYNTAX=1" -p "81:80" jimtim/zeropaste
+```
 
 # ZeroPaste v1
 
