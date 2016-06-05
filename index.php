@@ -64,16 +64,16 @@ function slow_equals($a, $b)
 
    eg. input 'e3570978f9e4aa90' --> output 'data/e3/57/'
 */
-function dataid2path($dataid)
-{
+   function dataid2path($dataid)
+   {
     return 'data/'.substr($dataid,0,2).'/'.substr($dataid,2,2).'/';
 }
 
 /* Convert paste id to discussion storage path.
    eg. 'e3570978f9e4aa90' --> 'data/e3/57/e3570978f9e4aa90.discussion/'
 */
-function dataid2discussionpath($dataid)
-{
+   function dataid2discussionpath($dataid)
+   {
     return dataid2path($dataid).$dataid.'.discussion/';
 }
 
@@ -145,46 +145,47 @@ if (!empty($_POST['data'])) // Create new paste/comment
          expire (optional) = expiration delay (never,5min,10min,1hour,1day,1week,1month,1year,burn) (default:never)
          opendiscusssion (optional) = is the discussion allowed on this paste ? (0/1) (default:0)
          syntaxcoloring (optional) = should this paste use syntax coloring when displaying.
+         language (optional) = set language.
          nickname (optional) = son encoded SJCL encrypted text nickname of author of comment (containing keys: iv,salt,ct)
          parentid (optional) = in discussion, which comment this comment replies to.
          pasteid (optional) = in discussion, which paste this comment belongs to.
     */
 
-    header('Content-type: application/json');
-    $error = false;
+         header('Content-type: application/json');
+         $error = false;
 
     // Create storage directory if it does not exist.
-    if (!is_dir('data'))
-    {
-        mkdir('data',0705);
-        file_put_contents('data/.htaccess',"Allow from none\nDeny from all\n", LOCK_EX);
-    }
+         if (!is_dir('data'))
+         {
+            mkdir('data',0705);
+            file_put_contents('data/.htaccess',"Allow from none\nDeny from all\n", LOCK_EX);
+        }
 
     // Make sure last paste from the IP address was more than 10 seconds ago.
-    if (!trafic_limiter_canPass($_SERVER['REMOTE_ADDR']))
-        { echo json_encode(array('status'=>1,'message'=>'Please wait 10 seconds between each post.')); exit; }
+        if (!trafic_limiter_canPass($_SERVER['REMOTE_ADDR']))
+            { echo json_encode(array('status'=>1,'message'=>'Please wait 10 seconds between each post.')); exit; }
 
     // Make sure content is not too big.
-    $data = $_POST['data'];
-    if (strlen($data)>2000000)
-        { echo json_encode(array('status'=>1,'message'=>'Paste is limited to 2 Mb of encrypted data.')); exit; }
+        $data = $_POST['data'];
+        if (strlen($data)>2000000)
+            { echo json_encode(array('status'=>1,'message'=>'Paste is limited to 2 Mb of encrypted data.')); exit; }
 
     // Make sure format is correct.
-    if (!validSJCL($data))
-        { echo json_encode(array('status'=>1,'message'=>'Invalid data.')); exit; }
+        if (!validSJCL($data))
+            { echo json_encode(array('status'=>1,'message'=>'Invalid data.')); exit; }
 
     // Read additional meta-information.
-    $meta=array();
+        $meta=array();
 
     // Read expiration date
-    if (!empty($_POST['expire']))
-    {
-        $expire=$_POST['expire'];
-        if ($expire=='5min') $meta['expire_date']=time()+5*60;
-        elseif ($expire=='10min') $meta['expire_date']=time()+10*60;
-        elseif ($expire=='1hour') $meta['expire_date']=time()+60*60;
-        elseif ($expire=='1day') $meta['expire_date']=time()+24*60*60;
-        elseif ($expire=='1week') $meta['expire_date']=time()+7*24*60*60;
+        if (!empty($_POST['expire']))
+        {
+            $expire=$_POST['expire'];
+            if ($expire=='5min') $meta['expire_date']=time()+5*60;
+            elseif ($expire=='10min') $meta['expire_date']=time()+10*60;
+            elseif ($expire=='1hour') $meta['expire_date']=time()+60*60;
+            elseif ($expire=='1day') $meta['expire_date']=time()+24*60*60;
+            elseif ($expire=='1week') $meta['expire_date']=time()+7*24*60*60;
         elseif ($expire=='1month') $meta['expire_date']=time()+30*24*60*60; // Well this is not *exactly* one month, it's 30 days.
         elseif ($expire=='1year') $meta['expire_date']=time()+365*24*60*60;
     }
@@ -213,6 +214,11 @@ if (!empty($_POST['data'])) // Create new paste/comment
         if ($syntaxcoloring!='0') { $meta['syntaxcoloring']=true; }
     }    
 
+    if (!empty($_POST['language']))
+    {
+        $meta['language']= $_POST['language'];
+    }  
+
     // You can't have an open discussion on a "Burn after reading" paste:
     if (isset($meta['burnafterreading'])) unset($meta['opendiscussion']);
 
@@ -233,7 +239,13 @@ if (!empty($_POST['data'])) // Create new paste/comment
             // (We assume that if the user did not enter a nickname, he/she wants
             // to be anonymous and we will not generate the vizhash.)
             $vz = new vizhash16x16();
-            $pngdata = $vz->generate($_SERVER['REMOTE_ADDR']);
+            $pngdata="";
+            if (isset($nick) && empty($nick)==false) {
+                $pngdata = $vz->generate($_SERVER['REMOTE_ADDR'].$nick);
+            } else {
+                 $pngdata = $vz->generate($_SERVER['REMOTE_ADDR']);
+            }
+           
             if ($pngdata!='') $meta['vizhash'] = 'data:image/png;base64,'.base64_encode($pngdata);
             // Once the avatar is generated, we do not keep the IP address, nor its hash.
         }
@@ -265,6 +277,7 @@ if (!empty($_POST['data'])) // Create new paste/comment
         unset($storage['expire_date']); // Comment do not expire (it's the paste that expires)
         unset($storage['opendiscussion']);
         unset($storage['syntaxcoloring']);
+        unset($storage['language']);
 
         // Make sure paste exists.
         $storagedir = dataid2path($pasteid);
@@ -308,15 +321,15 @@ if (!empty($_POST['data'])) // Create new paste/comment
         exit;
     }
 
-echo json_encode(array('status'=>1,'message'=>'Server error.'));
-exit;
+    echo json_encode(array('status'=>1,'message'=>'Server error.'));
+    exit;
 }
 
 /* Process a paste deletion request.
    Returns an array ('',$ERRORMESSAGE,$STATUS)
 */
-function processPasteDelete($pasteid,$deletetoken)
-{
+   function processPasteDelete($pasteid,$deletetoken)
+   {
     if (preg_match('/\A[a-f\d]{16}\z/',$pasteid))  // Is this a valid paste identifier ?
     {
         $filename = dataid2path($pasteid).$pasteid;
@@ -343,8 +356,8 @@ function processPasteDelete($pasteid,$deletetoken)
 /* Process a paste fetch request.
    Returns an array ($CIPHERDATA,$ERRORMESSAGE,$STATUS)
 */
-function processPasteFetch($pasteid)
-{
+   function processPasteFetch($pasteid)
+   {
     if (preg_match('/\A[a-f\d]{16}\z/',$pasteid))  // Is this a valid paste identifier ?
     {
         $filename = dataid2path($pasteid).$pasteid;
@@ -422,11 +435,42 @@ else if (!empty($_SERVER['QUERY_STRING']))  // Return an existing paste.
     list ($CIPHERDATA, $ERRORMESSAGE, $STATUS) = processPasteFetch($_SERVER['QUERY_STRING']);    
 }
 
+$PRIMARYCOLOR="light-blue accent-4";
+$ACCENTCOLOR="orange darken-3";
+$TEXTCOLOR="white";
+$BACKGROUNDCOLOR="white";
+$ALWAYSSYNTAX=1;
+if (!empty(getenv("PRIMARYCOLOR")))
+{
+    $PRIMARYCOLOR=getenv("PRIMARYCOLOR");
+}
+if (!empty(getenv("ACCENTCOLOR")))
+{
+    $ACCENTCOLOR=getenv("ACCENTCOLOR");
+}
+if (!empty(getenv("TEXTCOLOR")))
+{
+    $TEXTCOLOR=getenv("TEXTCOLOR");
+}
+if (!empty(getenv("BACKGROUNDCOLOR")))
+{
+    $BACKGROUNDCOLOR=getenv("BACKGROUNDCOLOR");
+}
+if (!empty(getenv("ALWAYSSYNTAX")))
+{
+    $ALWAYSSYNTAX=getenv("ALWAYSSYNTAX");
+}
+
 require_once "lib/rain.tpl.class.php";
 header('Content-Type: text/html; charset=utf-8');
 $page = new RainTPL;
 $page->assign('CIPHERDATA',htmlspecialchars($CIPHERDATA,ENT_NOQUOTES));  // We escape it here because ENT_NOQUOTES can't be used in RainTPL templates.
 $page->assign('VERSION',$VERSION);
+$page->assign('PRIMARYCOLOR',$PRIMARYCOLOR);
+$page->assign('ACCENTCOLOR',$ACCENTCOLOR);
+$page->assign('TEXTCOLOR',$TEXTCOLOR);
+$page->assign('BACKGROUNDCOLOR',$BACKGROUNDCOLOR);
+$page->assign('ALWAYSSYNTAX',$ALWAYSSYNTAX);
 $page->assign('ERRORMESSAGE',$ERRORMESSAGE);
 $page->assign('STATUS',$STATUS);
 $page->draw('page');
