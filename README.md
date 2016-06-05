@@ -6,14 +6,14 @@ Forked from https://github.com/heiswayi/zeropaste
 - Configure your colors with the help of system variables!
  ... 
 
-#Dockerized variant
+#Docker command
 Start container with "docker-compose up" or with docker command:
 ```bash
 docker run -e "PRIMARYCOLOR=green" -e "ACCENTCOLOR=red darken-1" -e "TEXTCOLOR=white" -e "BACKGROUNDCOLOR=white" -e "ALWAYSSYNTAX=1" -p "81:80" jimtim/zeropaste
 ```
 
-### Original README.md
-# ZeroPaste v1
+# Original README.md
+## ZeroPaste v1
 
 ZeroPaste is a minimalist, open source online pastebin where the server
 has zero knowledge of pasted data. The data is encrypted/decrypted in
@@ -24,7 +24,7 @@ the browser using 256 bits AES.
 >ZeroPaste is a forked project based on ZeroBin Alpha 0.19. More information about ZeroBin can be found at its project page:
 http://sebsauvage.net/wiki/doku.php?id=php:zerobin
 
-## Requirements
+### Requirements
 
 * **Server**
   - PHP 5.2.6 and above
@@ -33,12 +33,12 @@ http://sebsauvage.net/wiki/doku.php?id=php:zerobin
 * **Client**
   - A modern, javascript-capable web browser
 
-## Install
+### Install
 
 1. Upload all files to your web server, e.g. `/www/ZeroPaste/`
 2. Done!
 
-## License
+### License
 
 Copyright (c) 2015 Heiswayi Nrird
 
