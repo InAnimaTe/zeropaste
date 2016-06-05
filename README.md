@@ -1,9 +1,18 @@
+Forked from https://github.com/heiswayi/zeropaste
+
+- add MaterializeCss 
+- choose your syntax highlighting
+- responsive layout
+- Configure your colors with the help of system variables!
+ ... 
+
 #Dockerized variant
 Start container with "docker-compose up" or with docker command:
 ```bash
 docker run -e "PRIMARYCOLOR=green" -e "ACCENTCOLOR=red darken-1" -e "TEXTCOLOR=white" -e "BACKGROUNDCOLOR=white" -e "ALWAYSSYNTAX=1" -p "81:80" jimtim/zeropaste
 ```
 
+### Original README.md
 # ZeroPaste v1
 
 ZeroPaste is a minimalist, open source online pastebin where the server
@@ -28,16 +37,6 @@ http://sebsauvage.net/wiki/doku.php?id=php:zerobin
 
 1. Upload all files to your web server, e.g. `/www/ZeroPaste/`
 2. Done!
-
-## Screenshot
-
-![Screenshot 01](screenshot01.png)
-
-_**Screenshot 01:** Create/submit a new paste_
-
-![Screenshot 01](screenshot02.png)
-
-_**Screenshot 02:** Submitted paste with discussion enabled_
 
 ## License
 
