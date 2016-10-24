@@ -1,10 +1,10 @@
 zeropaste:
   image: jimtim/zeropaste
   environment:
-    - PRIMARYCOLOR=cyan darken-2
-    - ACCENTCOLOR=deep-orange accent-2
-    - TEXTCOLOR=white
-    - BACKGROUNDCOLOR=white
-    - ALWAYSSYNTAX=1
+    - "PRIMARYCOLOR=cyan darken-2"
+    - "ACCENTCOLOR=deep-orange accent-2"
+    - "TEXTCOLOR=white"
+    - "BACKGROUNDCOLOR=white"
+    - "ALWAYSSYNTAX=1"
   ports:
     - "81:80"
